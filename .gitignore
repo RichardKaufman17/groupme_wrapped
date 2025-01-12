@@ -1,0 +1,5 @@
+analysis_configs
+logs
+output_figures
+raw_outputs
+__pycache__
