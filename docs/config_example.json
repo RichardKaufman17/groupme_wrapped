@@ -1,0 +1,23 @@
+{
+    "message_request_limit": 200,
+    "start_date": "2024-01-01",
+    "end_date": "2025-01-01",
+    "chat_name": "Group",
+    "chat_keywords": [
+        {
+            "name": "twitter",
+            "aliases": [
+                "twitter",
+                "tweet",
+                "x.com"
+            ]
+        },
+        {
+            "name": "meme",
+            "aliases": [
+                "meme"
+            ]
+        }
+    ],
+    "num_messages_rank": 10
+}
