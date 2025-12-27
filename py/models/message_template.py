@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 class AttachmentType(Enum):
     """Types of attachments"""
+
     REPLY = "reply"
     IMAGE = "image"
     POLL = "poll"
@@ -17,13 +18,18 @@ class AttachmentType(Enum):
     FILE = "file"
     LOACTION = "location"
     LINKED_IMAGE = "linked_image"
+    AUDIO = "audio"
+    COPILOT = "copilot"
+
 
 class ReactionEmojis(Enum):
     """Emoji types for likes and dislikes"""
+
     HEART = "\u2764\ufe0f"
     QUESTION = "\u2753"
     LIKE = "\ud83d\udc4d"
     DISLIKE = "\ud83d\udc4e"
+    FIRE = "\ud83d\udd25"
 
 
 class ChatMessage(BaseModel):
@@ -31,12 +37,18 @@ class ChatMessage(BaseModel):
 
     class Reaction(BaseModel):
         """Location info template"""
+
         type: str = Field(description="Type of encoding or reaction")
-        user_ids: list[str] = Field(description="User Ids that reacted with reaction type")
-        code: str = Field(description="Reaction code")
+        user_ids: list[str] = Field(
+            description="User Ids that reacted with reaction type"
+        )
+        code: str = Field(default="", description="Reaction code")
+        pack_id: str | None = None
+        pack_index: str | None = None
 
     class Attachment(BaseModel):
         """Template for attachments in message"""
+
         type: AttachmentType
         url: str | None = None
         user_id: str | None = None
@@ -54,7 +66,8 @@ class ChatMessage(BaseModel):
         name: str | None = None
         lat: str | None = None
         long: str | None = None
-
+        peaks: str | None = None
+        duration: int | None = None
 
     id: int
     attachments: list[Attachment]
@@ -67,3 +80,12 @@ class ChatMessage(BaseModel):
     text: str | None
     favorited_by: list[str]
     reactions: list[Reaction] | None = None
+
+
+LIKES = [
+    reaction.value
+    for reaction in [ReactionEmojis.HEART, ReactionEmojis.LIKE, ReactionEmojis.FIRE]
+]
+DISLIKES = [
+    reaction.value for reaction in [ReactionEmojis.DISLIKE, ReactionEmojis.QUESTION]
+]

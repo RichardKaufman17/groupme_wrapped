@@ -8,7 +8,7 @@ from datetime import datetime
 from py.models.analysis_config import AnalysisConfig
 from py.models.message_template import ChatMessage
 from py.utils.utility import remove_unicode_characters
-from py.models.message_template import AttachmentType, ReactionEmojis
+from py.models.message_template import AttachmentType, LIKES, DISLIKES
 from py.models.member_stats import MemberStats, HOURS, DAYS
 from py.models.message_superlative import MessageSuperlative
 from py.models.chat_stats import ChatStats
@@ -137,10 +137,7 @@ class Analysis:
         likers: list[str] = []
         image_attachment: str | None = None
         for reaction in message.reactions:
-            if reaction.code in [
-                ReactionEmojis.HEART.value,
-                ReactionEmojis.LIKE.value,
-            ]:
+            if reaction.code in LIKES:
                 total_likes += len(reaction.user_ids)
                 likers += [self.id_to_name[name] for name in reaction.user_ids]
         for attachment in message.attachments:
@@ -222,10 +219,7 @@ class Analysis:
 
         if message.reactions is not None:
             for reaction in message.reactions:
-                if reaction.code in [
-                    ReactionEmojis.HEART.value,
-                    ReactionEmojis.LIKE.value,
-                ]:
+                if reaction.code in LIKES:
                     self.member_stats[poster].hearts_received += len(reaction.user_ids)
                     self.chat_stats.total_likes += len(reaction.user_ids)
                     for reacter in reaction.user_ids:
@@ -235,10 +229,7 @@ class Analysis:
                             reacter
                         ] += 1
                         self.member_stats[reacter].hearts_given_by_receiver[poster] += 1
-                elif reaction.code in [
-                    ReactionEmojis.DISLIKE.value,
-                    ReactionEmojis.QUESTION.value,
-                ]:
+                elif reaction.code in DISLIKES:
                     self.member_stats[poster].dislikes_received += 1
                     self.chat_stats.total_dislikes += len(reaction.user_ids)
                     for reacter in reaction.user_ids:
@@ -406,7 +397,11 @@ class Analysis:
 
     def keyword_plots(self):
         """Plot how frequently each keyword appeared"""
-        LOG.info("Create bar chat for popular chat words and phrases")
+        log_str = "create bar chat for popular chat words and phrases"
+        if not self.keyword_map:
+            LOG.warning("No keywords listed to %s", log_str)
+            return
+        LOG.info(log_str)
         output_file = self.output_dir / FileData.chat_keywords
         plot_keyword_occurances(self.keyword_map, output_file)
 
