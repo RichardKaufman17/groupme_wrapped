@@ -87,6 +87,8 @@ class Analysis:
             for key, value in self.id_to_names.items()
         }
         for name in self.id_to_name.values():
+            if name == "Copilot" and self.config.exclude_copilot:
+                continue
             self.chat_member_names += [name]
 
     def read_chat_json(self) -> list[ChatMessage]:

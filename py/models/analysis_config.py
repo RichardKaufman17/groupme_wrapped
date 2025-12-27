@@ -64,6 +64,10 @@ class AnalysisConfig(BaseModel):
     num_messages_rank: int = Field(
         default=10, description="Number of messages to rank, ie: 10 most popular"
     )
+    exclude_copilot: bool = Field(
+        default = True,
+        description = "Whether copilot AI chatmember should be included in stats"
+    )
 
     @model_validator(mode="after")
     def set_earliest_date(self) -> Self:
