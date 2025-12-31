@@ -39,7 +39,6 @@ def main(
 
         # Initialize chat output
         json_outout = validate_json_input(chat_json)
-        results_dir = FileData.results_dir / json_outout.split(".")[0]
         chat_path = FileData.raw_output_dir / json_outout
 
         # Parameters for chat data analysis
@@ -59,7 +58,7 @@ def main(
             ).fetch_chat()
 
         # Analyze chat data
-        Analysis(config, chat_path, results_dir).analyze_chat()
+        Analysis(config, chat_path).analyze_chat()
 
     except Exception as e:  # pylint: disable=broad-exception-caught
         LOG.error(e)

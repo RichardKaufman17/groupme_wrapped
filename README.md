@@ -141,6 +141,7 @@ The following data can be included in the config file:
 | --------- | -------- | ------ | ----------- |
 | message_request_limit | int | 200 | Amount of messages to grab in a single request |
 | chat_name | str | "Group Chat" | Name of groupchat to be referred to in figures | 
+| output_folder | str | `chat_name` | Folder to save output data |
 | start_date | Optional[Union[datetime, int]] | None | default start date of messages to analyze, as datetime (%Y-%m-%d %H:%M:%S) or timestamp. When set to none, all messages sent before `end_date` will be fetched |
 | end_date | Optional[Union[datetime, int]] | None | default end date of messages to analyze, as datetime (%Y-%m-%d %H:%M:%S) or timestamp. When set to none, all messages sent after `start_date` will be fetched |
 | num_messages_rank | int | 10 | The top `num_messages_rank` messages (top *n* messages with the most likes) will be listed in [most_popular_messages.csv](#popular-messages)

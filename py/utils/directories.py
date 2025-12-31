@@ -3,17 +3,17 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-PY_PATH: Path = Path(__file__).parents[2]
+BASE_PATH: Path = Path(__file__).parents[2]
 
 @dataclass
 class FileData:
     """Contains directories and filenames"""
 
     # Directories
-    raw_output_dir: Path = PY_PATH / "raw_outputs"
-    log_dir: Path = PY_PATH / "logs"
-    analysis_configs: Path = PY_PATH / "analysis_configs"
-    results_dir: Path = PY_PATH / "output_figures"
+    raw_output_dir: Path = BASE_PATH / "raw_outputs"
+    log_dir: Path = BASE_PATH / "logs"
+    analysis_configs: Path = BASE_PATH / "analysis_configs"
+    results_dir: Path = BASE_PATH / "output_figures"
 
     # Heatmap results
     heatmap_folder: str = "reaction_heatmaps"

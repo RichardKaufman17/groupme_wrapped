@@ -1,11 +1,32 @@
 """Summary model of results for individual user"""
 
 import statistics
+from pathlib import Path
 
-from py.utils.utility import DAYS, HOURS
+import pandas as pd
 from pydantic import BaseModel, Field
 
+from py.utils.utility import DAYS, HOURS
+from py.utils.directories import FileData
 
+HEADERS = [
+        "Member",
+        "Messages Sent",
+        "Average Word Count",
+        "Reactions Received",
+        "Reactions Given",
+        "Likes Recieved",
+        "Likes Given",
+        "Dislikes Received",
+        "Dislikes Given",
+        "Biggest Fan",
+        "Biggest Supporter Of",
+        "Avg Likes Per Post",
+        "Most Active Day",
+        "Most Active Hour",
+        "Images Sent",
+        "Polls Made",
+    ]
 class MemberStats(BaseModel):
     """Template to store results for individual user"""
 
@@ -111,3 +132,37 @@ class MemberStats(BaseModel):
         )
         self.biggest_supporter_of = (f"{biggest_supporter_of} - "
             f"{self.hearts_given_by_receiver[biggest_supporter_of]}")
+
+def member_summary_table(
+    member_stats: dict[str, MemberStats],
+    keyword_map: dict[str, dict[str, int]],
+    output_file: Path,
+):
+    """Create a table with summary stats for each player"""
+    headers = HEADERS
+    for key in keyword_map.keys():
+        headers += [key]
+    summary = pd.DataFrame(columns=headers, index=range(len(member_stats.keys())))
+    for i, (name, stats) in enumerate(member_stats.items()):
+
+        keywords_append = [members[name] for members in keyword_map.values()]
+        summary.iloc[i] = [
+            name,
+            stats.messages_sent,
+            stats.average_word_count,
+            stats.reactions_received,
+            stats.reactions_given,
+            stats.hearts_received,
+            stats.hearts_given,
+            stats.dislikes_received,
+            stats.dislikes_given,
+            stats.biggest_fan,
+            stats.biggest_supporter_of,
+            stats.heart_message_ratio,
+            stats.most_active_day,
+            stats.most_active_hour,
+            stats.images_sent,
+            stats.polls_made,
+        ] + keywords_append
+    summary.to_csv(output_file, sep=",", encoding="utf-8", index=False)
+

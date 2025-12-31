@@ -141,9 +141,10 @@ def plot_keyword_occurances(keyword_map: dict[str, dict[str, int]], output_file:
 
     bottoms = len(labels) * [0]
     for member, counts in bar_layers.items():
-        ax.bar(labels, counts, label=member, bottom=bottoms, edgecolor = 'black')
+        ax.bar(labels, counts, label=member, bottom=bottoms, edgecolor="black")
         bottoms = [bottom + count for bottom, count in zip(bottoms, counts)]
 
+    ax.set_ylim(0, max(bottoms))
     ax.set_title("Common Groupchat Words and Phrases", fontsize=20)
     ax.set_xlabel("Word / Phrase", fontsize=15)
     ax.set_ylabel("Number of Messages that Include Word / Phrase", fontsize=15)

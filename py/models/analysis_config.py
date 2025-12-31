@@ -5,9 +5,10 @@ import logging
 from datetime import datetime
 from typing import Self
 
-from py.utils.utility import validate_json_input
+from pydantic import BaseModel, Field, field_validator, model_validator
+
 from py.utils.directories import FileData
-from pydantic import BaseModel, Field, model_validator, field_validator
+from py.utils.utility import validate_json_input
 
 LOG = logging.getLogger(__name__)
 
@@ -58,6 +59,10 @@ class AnalysisConfig(BaseModel):
         default="Group Chat",
         description="Name of groupchat to be referred to in figures",
     )
+    output_folder: str = Field(
+        default = "",
+        description="Folder to save output data"
+    )
     chat_keywords: list[ChatKeywords] | None = Field(
         default=None, description="A list of chat keywords to analyze"
     )
@@ -78,6 +83,12 @@ class AnalysisConfig(BaseModel):
             self.end_date = datetime.timestamp(self.end_date)
         return self
 
+    @model_validator(mode="after")
+    def set_output_folder(self) -> Self:
+        """Set output folder to chat name if no output folder input to model"""
+        if not self.output_folder:
+            self.output_folder = self.chat_name
+        return self
 
 def read_analysis_config(filename: str | None) -> AnalysisConfig:
     """Function to read analysis config file"""

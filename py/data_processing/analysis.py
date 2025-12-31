@@ -9,19 +9,14 @@ from py.models.analysis_config import AnalysisConfig
 from py.models.message_template import ChatMessage
 from py.utils.utility import remove_unicode_characters
 from py.models.message_template import AttachmentType, LIKES, DISLIKES
-from py.models.member_stats import MemberStats, HOURS, DAYS
-from py.models.message_superlative import MessageSuperlative
-from py.models.chat_stats import ChatStats
+from py.models.member_stats import MemberStats, member_summary_table, HOURS, DAYS
+from py.models.message_superlative import MessageSuperlative, popular_message_table
+from py.models.chat_stats import ChatStats, chat_summary_table
 from py.data_processing.plots import (
     reaction_heat_map,
     histograms,
     plot_superlatives,
     plot_keyword_occurances,
-)
-from py.data_processing.tables import (
-    member_summary_table,
-    popular_message_table,
-    chat_summary_table,
 )
 from py.utils.directories import FileData
 
@@ -34,11 +29,11 @@ class Analysis:
     """Class to handle analaysis of GroupMe chat data"""
 
     def __init__(
-        self, analysis_config: AnalysisConfig, chat_path: Path, results_dir: Path
+        self, analysis_config: AnalysisConfig, chat_path: Path
     ):
         self.config = analysis_config
         self.chat_path = chat_path
-        self.output_dir = results_dir
+        self.output_dir = FileData.results_dir / analysis_config.output_folder
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Read chat
@@ -73,17 +68,23 @@ class Analysis:
         """Map user id numbers to member names"""
 
         for message in self.messages:
+            name = message.name
+            split_name = name.split(" ")
+            if "James" in name and len(split_name) > 1:
+                name = "James " + split_name[-1][0]
+            else:
+                name = split_name[0]
             try:
-                if message.name not in self.id_to_names[message.user_id]:
-                    self.id_to_names[message.user_id] += [message.name]
+                if name not in self.id_to_names[message.user_id]:
+                    self.id_to_names[message.user_id] += [name]
             except KeyError:
                 if message.user_id not in GROUPME_NAMES:
-                    self.id_to_names[message.user_id] = [message.name]
+                    self.id_to_names[message.user_id] = [name]
 
     def process_member_names(self):
         """Use most recent name of each member and remove unicode characters"""
         self.id_to_name = {
-            key: remove_unicode_characters(value[0])
+            key: remove_unicode_characters(value[-1])
             for key, value in self.id_to_names.items()
         }
         for name in self.id_to_name.values():
@@ -343,7 +344,7 @@ class Analysis:
             histograms(
                 member.days_posted,
                 DAYS,
-                f"{name} Weekly Post Distribution",
+                f"{name}'s Weekly Post Distribution",
                 "Day of Week",
                 histogram_dir / f"{name}{FileData.weekly}",
             )
@@ -410,5 +411,4 @@ class Analysis:
     def chat_summary(self):
         """Create table with chat summary data"""
         LOG.info("Creating Chat Summary Table")
-        output_file = self.output_dir / FileData.chat_summary
-        chat_summary_table(self.chat_stats, output_file)
+        chat_summary_table(self.chat_stats, self.output_dir)
